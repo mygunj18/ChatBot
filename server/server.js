@@ -8,13 +8,18 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server, {
     cors: {
-        origin: "http://localhost:3000", // React app URL
+        origin: ["http://localhost:3000", "https://chatbot-server-coy9.onrender.com"],// React app URL
         methods: ["GET", "POST"]
     }
 });
 
 // Enable CORS
 app.use(cors());
+
+// Add this near your other app.use statements
+app.get('/', (req, res) => {
+    res.send('Server is running');
+});
 
 // Store connected users
 const users = new Map();
