@@ -156,7 +156,7 @@ const Username = styled.strong`
 // Add this in the head section of your public/index.html
 // <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
-const SOCKET_SERVER = 'http://localhost:5000';
+const SOCKET_SERVER = 'https://chatbot-server-coy9.onrender.com';
 
 function App() {
   // ... existing state declarations ...
