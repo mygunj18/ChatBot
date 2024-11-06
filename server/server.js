@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server, {
     cors: {
-        origin: ["http://localhost:3000", "https://chatbot-server-coy9.onrender.com"],// React app URL
+        origin: ["http://localhost:3000"],//, "https://chatbot-server-coy9.onrender.com"],// React app URL
         methods: ["GET", "POST"]
     }
 });
