@@ -2,67 +2,42 @@ const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
-require('dotenv').config();
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIO(server, {
-    cors: {
-        origin: ["http://localhost:3000"],//, "https://chatbot-server-coy9.onrender.com"],// React app URL
-        methods: ["GET", "POST"]
-    }
-});
-
-// Enable CORS
 app.use(cors());
 
-// Add this near your other app.use statements
-app.get('/', (req, res) => {
-    res.send('Server is running');
+const server = http.createServer(app);
+const io = socketIO(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"]
+  }
 });
 
-// Store connected users
-const users = new Map();
+const users = new Set();
 
-// Socket.IO connection handling
 io.on('connection', (socket) => {
-    console.log('New client connected');
+  console.log('User connected');
 
-    // Handle user joining
-    socket.on('join', (username) => {
-        users.set(socket.id, username);
-        io.emit('userJoined', {
-            user: username,
-            users: Array.from(users.values())
-        });
-        console.log(`${username} joined the chat`);
-    });
+  socket.on('join', (username) => {
+    users.add(username);
+    socket.username = username;
+    io.emit('message', { username: 'System', text: `${username} joined` });
+  });
 
-    // Handle messages
-    socket.on('message', (data) => {
-        const { message } = data;
-        const user = users.get(socket.id);
-        io.emit('message', {
-            user,
-            message,
-            timestamp: new Date().toISOString()
-        });
-        console.log(`Message from ${user}: ${message}`);
-    });
+  socket.on('message', (message) => {
+    io.emit('message', message);
+  });
 
-    // Handle disconnection
-    socket.on('disconnect', () => {
-        const username = users.get(socket.id);
-        users.delete(socket.id);
-        io.emit('userLeft', {
-            user: username,
-            users: Array.from(users.values())
-        });
-        console.log(`${username} left the chat`);
-    });
+  socket.on('disconnect', () => {
+    if (socket.username) {
+      users.delete(socket.username);
+      io.emit('message', { username: 'System', text: `${socket.username} left` });
+    }
+  });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
